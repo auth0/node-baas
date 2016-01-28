@@ -63,7 +63,7 @@ sudo aptitude install -y baas
 ```
 ## Author
 
-[Auth0](auth0.com)
+[Auth0](http://auth0.com)
 
 ## License
 
