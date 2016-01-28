@@ -61,7 +61,10 @@ sudo aptitude update
 sudo aptitude install -y baas
 
 ```
+## Author
+
+[Auth0](auth0.com)
 
 ## License
 
-MIT 2015 - AUTH0 INC.
+This project is licensed under the MIT license. See the [LICENSE](LICENSE) file for more info.
