@@ -5,6 +5,11 @@ var logger = require('./lib/logger');
 var _      = require('lodash');
 var net = require('net');
 
+var agent  = require('auth0-instrumentation');
+var pkg    = require('./package.json');
+agent.init(pkg, process.env);
+var metrics = agent.metrics;
+
 var RequestDecoder = require('./messages/decoders').RequestDecoder;
 var randomstring = require('randomstring');
 
@@ -44,6 +49,7 @@ function BaaSServer (options) {
 util.inherits(BaaSServer, EventEmitter);
 
 BaaSServer.prototype._handler = function (socket) {
+  metrics.increment('requests.incoming');
   var sockets_details = _.pick(socket, ['remoteAddress', 'remotePort']);
 
   sockets_details.connection = socket._connection_id = randomstring.generate(5);
@@ -74,7 +80,7 @@ BaaSServer.prototype._handler = function (socket) {
   socket.pipe(decoder)
         .pipe(PasswordHasher(this._config, socket, log))
         .pipe(PasswordComparer(this._config, socket, log))
-        .pipe(ResponseWriter())
+        .pipe(ResponseWriter(metrics))
         .pipe(socket);
 };
 
