@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "async": "~0.9.0",
-    "auth0-instrumentation": "auth0/auth0-instrumentation#v0.0.9",
+    "auth0-instrumentation": "auth0/auth0-instrumentation#v0.0.15",
     "bcrypt": "~0.8.5",
     "bunyan": "~1.3.3",
     "cb": "~0.1.0",
