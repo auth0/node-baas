@@ -19,7 +19,15 @@ program.version(require('../package').version)
 //I don't like this
 var agent  = require('auth0-instrumentation');
 var pkg    = require('../package.json');
-agent.init(pkg, process.env);
+var _env = Object.assign({}, {
+  COLLECT_RESOURCE_USAGE: true,
+  DEPLOYMENT_REGION: 'unknown'
+}, process.env);
+agent.init(pkg, _env);
+
+agent.merics.setDefaultTag({
+  region: _env.DEPLOYMENT_REGION
+});
 
 var config = _.pick(program, ['salt', 'port', 'hostname', 'configFile', 'logLevel']);
 config.metrics = agent.metrics;
