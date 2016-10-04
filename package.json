@@ -39,7 +39,6 @@
     "read": "~1.0.7",
     "reconnect-net": "~1.0.0",
     "reconnect-tls": "jfromaniello/reconnect-tls#hangup-fix",
-    "retry": "~0.9.0",
     "through2": "~2.0.1",
     "v8-profiler": "~5.6.5"
   },

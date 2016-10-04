@@ -2,7 +2,6 @@ const _            = require('lodash');
 const EventEmitter = require('events').EventEmitter;
 const BaaSClient   = require('./client');
 const util         = require('util');
-const retry        = require('retry');
 
 function BaaSPool (options) {
   EventEmitter.call(this);
@@ -83,36 +82,16 @@ BaaSPool.prototype._killClient = function (client) {
 
 ['compare', 'hash'].forEach(function (method) {
   BaaSPool.prototype[method] = function () {
-    const operation = retry.operation({
-      retries:    20,
-      randomize:  false,
-      minTimeout: 30,
-      maxTimeout: 200,
-    });
-
-    const args = Array.prototype.slice.call(arguments);
-    const originalCallback = args.pop();
+    const args = Array.from(arguments);
+    const callback = args[args.length - 1];
     const self = this;
 
-    operation.attempt(function () {
-      self._getClient(function (err, client) {
-        function callback (err) {
-          if (operation.retry(err)) {
-            return;
-          }
-          const args = Array.prototype.slice.call(arguments);
-          args[0] = err && operation.mainError();
-          originalCallback.apply(self, args);
-        }
+    self._getClient(function (err, client) {
+      if (err) {
+        return callback(err);
+      }
 
-        if (err) {
-          return callback(err);
-        }
-
-        args.push(callback);
-
-        client[method].apply(client, args);
-      });
+      client[method].apply(client, args);
     });
   };
 });
