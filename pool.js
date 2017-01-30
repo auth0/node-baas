@@ -26,8 +26,8 @@ BaaSPool.prototype._getClient = function (callback) {
   self._clients
     .filter(c => c._requestCount >= self._options.maxRequestsPerConnection || (c.stream && !c.stream.writable))
     .forEach(c => {
-      self.emit('limit_requests_per_connections_reached', { 
-        not_writeable: (c.stream && !c.stream.writable), 
+      // Trigger a different event based on why we kill the client
+      self.emit(c.stream && !c.stream.writable ? 'connection_not_writeable' : 'limit_requests_per_connections_reached', { 
         request_count: c._requestCount, 
         max_request_count: self._options.maxRequestsPerConnection  
       });          
