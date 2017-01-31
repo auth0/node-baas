@@ -64,8 +64,8 @@ BaaSPool.prototype._getClient = function (callback) {
   const client = self._clients.shift();
 
   if (!client) {
-    self.emit('request_queued');    
     self._pendingRequests.push(callback);
+    self.emit('request_queued', { pending_requests: self._pendingRequests.length });        
     return;
   }
 
