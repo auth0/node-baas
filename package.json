@@ -17,13 +17,13 @@
   "author": "José F. Romaniello <jfromaniello@gmail.com> (http://joseoncode.com)",
   "license": "MIT",
   "engines": {
-    "node": ">=0.10.40"
+    "node": ">=4.0.0"
   },
   "dependencies": {
     "async": "~0.9.0",
     "auth0-instrumentation": "auth0/auth0-instrumentation#v1.2.1",
     "aws-sdk": "~2.6.9",
-    "bcrypt": "~0.8.5",
+    "bcrypt": "^1.0.2",
     "bunyan": "~1.3.3",
     "commander": "~2.6.0",
     "disyuntor": "^2.2.0",
@@ -40,8 +40,7 @@
     "reconnect-net": "~1.0.0",
     "reconnect-tls": "jfromaniello/reconnect-tls#hangup-fix",
     "server-destroy": "^1.0.1",
-    "through2": "~2.0.1",
-    "v8-profiler": "~5.6.5"
+    "through2": "~2.0.1"
   },
   "devDependencies": {
     "chai": "~1.10.0",

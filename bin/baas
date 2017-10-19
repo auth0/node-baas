@@ -55,16 +55,5 @@ process.on('SIGTERM', function () {
   setTimeout(function () {
     process.exit(0);
   }, 100);
-}).on('SIGUSR2', function () {
-  const v8Profiler = require('v8-profiler');
-  const path = `/tmp/baas-heap-${Math.round(new Date().getTime() / 1000)}.heapsnapshot`;
-  const snapshot = v8Profiler.takeSnapshot();
-
-  snapshot.export()
-    .pipe(fs.createWriteStream(path))
-    .on('finish', function () {
-      console.log(`snapshot stored in ${path}`);
-      snapshot.delete();
-    });
 });
 
