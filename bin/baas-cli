@@ -8,10 +8,17 @@ var read = require('read')
 program.version(require('../package').version)
   .option('-p, --port [9485]', 'Port to bind [9485].', '9485')
   .option('-h, --hostname [0.0.0.0]', 'Hostname to bind [0.0.0.0].', '0.0.0.0')
+  .option('--protocol <protocol>', 'Protocol to use', 'baas')
+  .option('--no-reject', 'Allow self signed certs')
   .option('--hash <hash>', 'The hash to compare the password.', false)
   .parse(process.argv);
 
-var config = _.pick(program, ['port', 'hostname']);
+var config = _.pick(program, ['port', 'hostname', 'protocol']);
+
+if (!program.reject) {
+  config.rejectUnauthorized = false;
+}
+
 var client = new Client(config);
 
 client.once('ready', function () {
@@ -22,16 +29,13 @@ client.once('ready', function () {
           console.error(err.message);
           return process.exit(1);
         }
-        console.log('The password hash is ' + result.hash);
+        console.log('The password hash is ' + result);
         return process.exit(0);
       });
     });
   } else {
     read({ prompt: 'Enter the password to compare: ', silent: true }, function(er, password) {
-      client.compare({
-        password: password,
-        hash: program.hash
-      }, function (err, result) {
+      client.compare(password, program.hash, function (err, result) {
         if (err) {
           console.error(err.message);
           return process.exit(1);

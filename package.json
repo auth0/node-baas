@@ -1,6 +1,6 @@
 {
   "name": "baas",
-  "version": "5.14.0",
+  "version": "5.15.0",
   "description": "Daemon for rate limiting using tocket buckets.",
   "main": "index.js",
   "repository": {
@@ -8,7 +8,7 @@
     "url": "http://github.com/auth0/node-baas.git"
   },
   "scripts": {
-    "test": "NODE_ENV=test mocha --timeout 5000"
+    "test": "NODE_ENV=test mocha --timeout 5000 --exit"
   },
   "bin": {
     "baas": "./bin/baas",
@@ -20,33 +20,31 @@
     "node": ">=4.0.0"
   },
   "dependencies": {
-    "async": "~0.9.0",
-    "auth0-instrumentation": "auth0/auth0-instrumentation#v1.2.1",
-    "aws-sdk": "~2.6.9",
+    "async": "^2.6.0",
+    "auth0-instrumentation": "github:auth0/auth0-instrumentation#v2.11.4",
+    "aws-sdk": "^2.188.0",
     "bcrypt": "^1.0.3",
-    "bunyan": "~1.8.10",
-    "commander": "~2.6.0",
+    "bunyan": "^1.8.12",
+    "commander": "^2.13.0",
     "disyuntor": "^2.2.0",
     "double-ended-queue": "^2.1.0-0",
-    "event-stream": "~3.2.2",
-    "js-yaml": "~3.2.5",
-    "lodash": "~3.1.0",
-    "master-process": "~2.3.1",
-    "ms": "~2.0.0",
+    "js-yaml": "^3.10.0",
+    "lodash": "^4.17.4",
+    "master-process": "^2.6.0",
+    "ms": "^2.1.1",
     "pb-stream": "~1.1.0",
-    "protobufjs": "~5.0.1",
-    "randomstring": "~1.0.3",
+    "protobufjs": "^5.0.1",
+    "randomstring": "^1.1.5",
     "read": "~1.0.7",
-    "reconnect-net": "~1.0.0",
+    "reconnect-net": "^1.1.1",
     "reconnect-tls": "jfromaniello/reconnect-tls#hangup-fix",
     "server-destroy": "^1.0.1",
-    "through2": "~2.0.1",
-    "v8-profiler": "~5.7.0"
+    "through2": "~2.0.1"
   },
   "devDependencies": {
-    "chai": "~1.10.0",
+    "chai": "^4.1.2",
     "freeport": "~1.0.5",
-    "mocha": "~2.1.0",
-    "selfsigned": "~1.8.0"
+    "mocha": "^5.0.0",
+    "selfsigned": "^1.10.2"
   }
 }

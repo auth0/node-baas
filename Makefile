@@ -45,4 +45,3 @@ check-fpm-installed:
 	@command -v fpm >/dev/null 2>&1 || { echo >&2 "fpm required to build DEBs but not installed"; \
 	echo >&2 "Install with: \n $ sudo apt-get install ruby-dev gcc && sudo gem install fpm"; \
 	echo >&2 "Aborting"; exit 1; }
-
