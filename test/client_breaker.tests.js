@@ -66,7 +66,7 @@ describe('client (circuit-breaker)', function () {
       }),
       cb => setTimeout(cb, 500),
       cb => client.hash('foo', (err) => {
-        assert.notOk(err);
+        assert.notOk(err, JSON.stringify(err));
         cb();
       }),
     ], done);
