@@ -1,21 +1,17 @@
-const cluster = require('cluster');
-
-const EventEmitter = require('events').EventEmitter;
-
+const cluster        = require('cluster');
 const util           = require('util');
 const bunyan         = require('bunyan');
 const _              = require('lodash');
 const net            = require('net');
-const Deque          = require("double-ended-queue");
-
-const RequestDecoder = require('./messages/decoders').RequestDecoder;
+const Deque          = require('double-ended-queue');
 const randomstring   = require('randomstring');
-
-const ResponseWriter = require('./lib/pipeline/response_writer');
 const through2       = require('through2');
-const Response       = require('./messages').Response;
 const AWS            = require('aws-sdk');
 const enableDestroy  = require('server-destroy');
+const EventEmitter = require('events').EventEmitter;
+
+const Response       = require('./messages').Response;
+const RequestDecoder = require('./messages/decoders').RequestDecoder;
 
 const defaults = {
   port:     9485,
@@ -76,7 +72,6 @@ function BaaSServer (options) {
   this._server.on('error', (err) => {
     this.emit('error', err);
   });
-
 
   cluster.setupMaster({
     exec: __dirname + '/worker.js'
@@ -167,14 +162,14 @@ BaaSServer.prototype._handler = function (socket) {
     }), 'connection error');
   }).on('close', () => {
     this._metrics.increment('connection.closed');
-    log.debug(sockets_details, 'connection closed');
+    log.info(sockets_details, 'connection closed');
   });
 
   if (this._config.socketTimeout) {
     socket.setTimeout(this._config.socketTimeout);
     socket.once('timeout', () => {
       log.info(sockets_details, 'idle connection closed');
-      socket.end();
+      return socket.end();
     });
   }
 
@@ -182,36 +177,32 @@ BaaSServer.prototype._handler = function (socket) {
 
   const decoder = RequestDecoder();
 
-  decoder.on('error',  () => {
+  decoder.on('error',  (err) => {
     log.info(sockets_details, 'unknown message format');
     return socket.end();
   });
 
-  const responseStream = ResponseWriter();
-
-  responseStream.pipe(socket);
-
   socket.pipe(decoder)
     .pipe(through2.obj((request, encoding, callback) => {
-      const operation = request.operation === 0 ? 'compare' : 'hash';
-      const start = new Date();
+      const operation = request.operation === 0 ? 'hash' : 'compare';
+      const start = Date.now();
 
       const done = (worker_id, enqueued) => {
         return (err, response) => {
           log.info({
             request:    request.id,
             connection: socket._connection_id,
-            took:       new Date() - start,
+            took:       Date.now() - start,
             worker:     worker_id,
             operation:  operation,
             enqueued:   enqueued,
             log_type:   'response'
           }, `${operation} completed`);
 
-          this._metrics.histogram(`requests.processed.${operation}.time`, (new Date() - start));
+          this._metrics.histogram(`requests.processed.${operation}.time`, (Date.now() - start));
           this._metrics.increment(`requests.processed.${operation}`);
 
-          responseStream.write(new Response(response));
+          socket.write(Response.encode(Response.create(response)).finish());
         };
       };
 
@@ -232,7 +223,6 @@ BaaSServer.prototype._handler = function (socket) {
         return callback();
       }
 
-      // all workers are the same, pop is faster than shift: http://stackoverflow.com/questions/6501160/why-is-pop-faster-than-shift
       const worker = this._workers.pop();
 
       worker.sendRequest(request, done(worker.id, false));

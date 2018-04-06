@@ -1,7 +1,7 @@
 {
   "name": "baas",
   "version": "5.15.0",
-  "description": "Daemon for rate limiting using tocket buckets.",
+  "description": "Bcrypt as a service",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
   "author": "José F. Romaniello <jfromaniello@gmail.com> (http://joseoncode.com)",
   "license": "MIT",
   "engines": {
-    "node": ">=0.10.40"
+    "node": ">=4.2.3"
   },
   "dependencies": {
     "async": "^2.6.0",
@@ -25,15 +25,16 @@
     "aws-sdk": "^2.188.0",
     "bcrypt": "^1.0.3",
     "bunyan": "^1.8.12",
+    "bytebuffer": "^5.0.1",
     "commander": "^2.13.0",
     "disyuntor": "^2.2.0",
     "double-ended-queue": "^2.1.0-0",
+    "highland": "^2.13.0",
     "js-yaml": "^3.10.0",
     "lodash": "^4.17.4",
     "master-process": "^2.6.0",
     "ms": "^2.1.1",
-    "pb-stream": "~1.1.0",
-    "protobufjs": "^5.0.1",
+    "protobufjs": "^6.8.6",
     "randomstring": "^1.1.5",
     "read": "~1.0.7",
     "reconnect-net": "^1.1.1",

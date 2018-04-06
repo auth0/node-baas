@@ -3,22 +3,15 @@ const bcrypt = require('bcrypt');
 const execute = module.exports = function (request) {
   const request_id = request.id;
 
+  const result = { request_id, success: false };
+
   if (request.operation === 0) {
-    //compare
-    const success = bcrypt.compareSync(request.password, request.hash);
-    return {
-      request_id,
-      success
-    };
+    result.success = bcrypt.compareSync(request.password, request.hash);
   } else if (request.operation === 1) {
-    //hash
-    const hash = bcrypt.hashSync(request.password, 10);
-    return {
-      request_id,
-      hash,
-      success: true
-    };
+    result.hash = bcrypt.hashSync(request.password, 10);
+    result.success = true;
   }
+  return result;
 };
 
 /**
