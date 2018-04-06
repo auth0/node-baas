@@ -178,7 +178,12 @@ BaaSServer.prototype._handler = function (socket) {
   const decoder = RequestDecoder();
 
   decoder.on('error',  (err) => {
-    log.info(sockets_details, 'unknown message format');
+    log.info(_.extend(sockets_details, {
+      err: {
+        code:    err.code,
+        message: err.message
+      }
+    }), 'unknown message format');
     return socket.end();
   });
 

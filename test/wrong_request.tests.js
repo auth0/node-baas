@@ -35,7 +35,5 @@ describe('wrong requests', function () {
       }).once('close', function () {
         done();
       });
-
   });
-
 });
