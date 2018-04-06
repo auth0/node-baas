@@ -181,11 +181,7 @@ BaaSClient.prototype._sendRequest = function (params, callback) {
     }
 
     callback(null, response);
-  }).on('error', (err) => {
-    //callback(err);
-  }).on('disconnect', (err) => {
-    //callback(err || new Error('baas server disconnected'));
-  });
+  }).on('error', () => {}).on('disconnect', (err) => {});
 };
 
 BaaSClient.prototype.disconnect = function () {
