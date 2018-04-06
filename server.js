@@ -184,7 +184,7 @@ BaaSServer.prototype._handler = function (socket) {
 
   socket.pipe(decoder)
     .pipe(through2.obj((request, encoding, callback) => {
-      const operation = request.operation === 0 ? 'hash' : 'compare';
+      const operation = request.operation === 0 ? 'compare' : 'hash';
       const start = Date.now();
 
       const done = (worker_id, enqueued) => {
