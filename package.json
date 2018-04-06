@@ -25,7 +25,6 @@
     "aws-sdk": "^2.188.0",
     "bcrypt": "^1.0.3",
     "bunyan": "^1.8.12",
-    "bytebuffer": "^5.0.1",
     "commander": "^2.13.0",
     "disyuntor": "^2.2.0",
     "double-ended-queue": "^2.1.0-0",
