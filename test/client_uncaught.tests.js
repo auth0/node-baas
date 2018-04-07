@@ -4,7 +4,7 @@ const freeport = require('freeport');
 const assert = require('chai').assert;
 const _ = require('lodash');
 
-describe('client (uncaught)', function () {
+describe('client (wrong signature)', function () {
   var server, client;
 
   before(function (done) {
@@ -25,7 +25,7 @@ describe('client (uncaught)', function () {
     server.stop(done);
   });
 
-  it('should be able to hash a password', function (done) {
+  it('should error when signature is broken', function (done) {
     var password = 'foobar';
     client.hash(password, function (err, hash) {
       if (err) return done(err);

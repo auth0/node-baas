@@ -1,11 +1,20 @@
-var messages = require('./.');
-var decoder = require('pb-stream').decoder;
+const highland = require('highland');
+
+const messages = require('./.');
 
 function buildDecoder(Message) {
-  return decoder(Message);
+  return highland.pipeline(
+    highland.map((buffer) => {
+      // needs try catch
+      try {
+        return Message.toObject(Message.decode(buffer));
+      } catch(e) {
+        throw e;
+      }
+  }));
 }
 
-Object.keys(messages).forEach(function (k) {
+['Request', 'Response'].forEach(function (k) {
   module.exports[k + 'Decoder'] = function () {
     return buildDecoder(messages[k]);
   };

@@ -29,13 +29,11 @@ describe('wrong requests', function () {
     // I'm going to make the server fail by sending a Response message from the client.
     socket.connect(address.port, address.address)
       .once('connect', function () {
-        socket.write(new ResponseMessage({
+        socket.write(ResponseMessage.encode(ResponseMessage.create({
           request_id: '123',
-        }).encodeDelimited().toBuffer());
+        })).finish());
       }).once('close', function () {
         done();
       });
-
   });
-
 });

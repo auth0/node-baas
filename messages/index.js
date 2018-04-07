@@ -1,6 +1,8 @@
 const ProtoBuf = require('protobufjs');
 const path = require('path');
 
-const builder = ProtoBuf.loadProtoFile(path.join(__dirname, "/../protocol/Index.proto"));
+const root = new ProtoBuf.Root();
 
-module.exports = builder.build("baas");
+module.exports = root
+  .loadSync(path.join(__dirname, '/../protocol/Index.proto'), { keepCase: true })
+  .lookup('baas');

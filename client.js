@@ -79,15 +79,14 @@ BaaSClient.prototype.connect = function (done) {
   this.socket = this._socketLib(function (stream) {
 
     stream.pipe(ResponseDecoder()).on('data', function (response) {
-      client.emit('response', response);
       client.emit('response_' + response.request_id, response);
     });
     client.stream = stream;
     client.emit('ready');
   }).once('connect', function () {
     client.emit('connect');
-  }).on('close', function (has_error) {
-    client.emit('close', has_error);
+  }).on('disconnect', function(err) {
+    client.emit('disconnect', err);
   }).on('error', function (err) {
     if (err === 'DEPTH_ZERO_SELF_SIGNED_CERT' && options.rejectUnauthorized === false) {
       return;
@@ -150,11 +149,17 @@ BaaSClient.prototype._sendRequest = function (params, callback) {
     return setImmediate(callback, new Error('The socket is closed.'));
   }
 
-  var request;
+  var request = _.extend({
+    'id': randomstring.generate(7)
+  }, params);
+
+  const validationError = RequestMessage.verify(request);
+  if (validationError) {
+    return setImmediate(callback, new Error(validationError));
+  }
+
   try {
-    request = new RequestMessage(_.extend({
-      'id': randomstring.generate(7)
-    }, params))
+    request = RequestMessage.create(request)
   } catch (err) {
     return callback(err);
   };
@@ -162,9 +167,10 @@ BaaSClient.prototype._sendRequest = function (params, callback) {
   this._requestCount++;
   this._pendingRequests++;
 
-  this.stream.write(request.encodeDelimited().toBuffer());
+  const buffer = RequestMessage.encode(request).finish();
+  this.stream.write(buffer);
 
-  this.once('response_' + request.id, response => {
+  this.once('response_' + request.id, (response) => {
     this._pendingRequests--;
     if (this._pendingRequests === 0) {
       this.emit('drain');
@@ -175,7 +181,7 @@ BaaSClient.prototype._sendRequest = function (params, callback) {
     }
 
     callback(null, response);
-  });
+  }).on('error', () => {}).on('disconnect', (err) => {});
 };
 
 BaaSClient.prototype.disconnect = function () {
