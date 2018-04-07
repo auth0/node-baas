@@ -1,8 +1,0 @@
-/var/log/baas.log {
-  copytruncate
-  hourly
-  rotate 5
-  size 20M
-  su root
-  compress
-}
