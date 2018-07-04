@@ -116,7 +116,7 @@ function BaaSServer (options) {
 util.inherits(BaaSServer, EventEmitter);
 
 BaaSServer.prototype._reportQueueLength = function () {
-  this._metrics.gauge('requests.queued', this._queue.length);
+  this._metrics.gauge('requests.queued', this._intervalQueued);
 
   const dimensions = [];
 
