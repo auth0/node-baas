@@ -21,7 +21,7 @@ describe('client (circuit-breaker)', function () {
           },
           breaker: {
             maxFailures: 1,
-            timeout: 100,
+            timeout: 500,
             cooldown: 500
           }
         }));

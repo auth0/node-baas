@@ -1,20 +1,21 @@
-const bcrypt = require('bcrypt');
+const magic = require('magic');
 
-const execute = module.exports = function (request) {
+const execute = module.exports = function (request, callback) {
   const request_id = request.id;
-
-  const result = { request_id, success: false };
 
   if (request.operation === 0) {
     //compare
-    result.success = bcrypt.compareSync(request.password, request.hash);
+    magic.alt.verify.bcrypt(request.password, request.hash, function(err) {
+      callback(null, { request_id, success: !err })
+    });
   } else if (request.operation === 1) {
     //hash
-    result.hash = bcrypt.hashSync(request.password, 10);
-    result.success = true;
+    magic.alt.password.bcrypt(request.password, function(err, output) {
+      callback(null, { request_id, success: !err, hash: output.hash })
+    });
+  } else {
+    callback(null, { request_id, success: false })
   }
-
-  return result;
 };
 
 /**
@@ -22,6 +23,7 @@ const execute = module.exports = function (request) {
  * operation { compare: 0, hash: 1}
  */
 process.on('message', (request) => {
-  process.send(execute(request));
+  execute(request, function(err, result) {
+    process.send(result)
+  });
 });
-

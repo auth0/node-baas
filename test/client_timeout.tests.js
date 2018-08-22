@@ -10,7 +10,7 @@ describe('client (timeout)', function () {
   before(function (done) {
     freeport(function (err, port) {
       if (err) { return done(err); }
-      server = new BaaSServer({ port, logLevel: 'error', socketTimeout: 500 });
+      server = new BaaSServer({ port, logLevel: 'error', socketTimeout: 1000 });
 
       server.start(function (err, address) {
         if (err) return done(err);
@@ -25,7 +25,7 @@ describe('client (timeout)', function () {
     server.stop(done);
   });
 
-  it('should be able to hash a password', function (done) {
+  it.only('should be able to hash a password', function (done) {
     var password = 'foobar';
     client.hash(password, function (err, hash) {
       if (err) return done(err);

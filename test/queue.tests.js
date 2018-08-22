@@ -5,7 +5,7 @@ const freeport = require('freeport');
 const assert = require('chai').assert;
 const _ = require('lodash');
 const BaaSClient = require('../client');
-const bcrypt = require('bcrypt');
+const magic = require('magic');
 
 
 describe('serving queueing', function () {
@@ -37,9 +37,11 @@ describe('serving queueing', function () {
     const password = 'foobar';
     client.hash(password, _.noop);
     client.hash(password, function (err, hash) {
-      if (err) { return done(err); }
-      assert.ok(bcrypt.compareSync(password, hash));
-      done();
+      if (err) return done(err);
+      magic.alt.verify.bcrypt(password, hash, function(err) {
+        assert.ok(!err);
+        done();
+      });
     });
   });
 
