@@ -1,6 +1,6 @@
 {
   "name": "baas",
-  "version": "5.15.0",
+  "version": "5.16.0",
   "description": "Bcrypt as a service",
   "main": "index.js",
   "repository": {
