@@ -29,7 +29,7 @@
     "double-ended-queue": "^2.1.0-0",
     "js-yaml": "^3.12.0",
     "lodash": "^4.17.10",
-    "magic": "github:auth0/magic#v1.0.0",
+    "magic": "github:auth0/magic#v1.0.1",
     "master-process": "^2.6.0",
     "ms": "^2.1.1",
     "protobufjs": "^6.8.8",
