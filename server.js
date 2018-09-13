@@ -17,6 +17,7 @@ const Request        = require('./messages').Request;
 const Response       = require('./messages').Response;
 const AWS            = require('aws-sdk');
 const enableDestroy  = require('server-destroy');
+const dns            = require('dns');
 
 const defaults = {
   port:     9485,
@@ -114,9 +115,30 @@ function BaaSServer (options) {
     this._intervalQueued = 0;
     setInterval(this._reportQueueLength.bind(this), 1000);
   }
+
+  if (process.env.AUTO_DISCOVERY_DNS) {
+    this.findPeers();
+  }
+
+  this._sockets = [];
 }
 
 util.inherits(BaaSServer, EventEmitter);
+
+BaaSServer.prototype.findPeers = function() {
+  dns.resolve(process.env.AUTO_DISCOVERY_DNS, 'A', (err, addresses) => {
+    setTimeout(() => this.findPeers(), 10000);
+    if (err) { return; }
+
+    if (this.currentPeers && addresses.length > this.currentPeers.length) {
+      //There is a new node, we force clients to rebalance by closing all connections
+      //if there is an in-flight request it will be retried by the client.
+      this._sockets.forEach(s => s.close());
+    }
+
+    this.currentPeers = addresses;
+  });
+};
 
 BaaSServer.prototype._reportQueueLength = function () {
   this._metrics.gauge('requests.queued', this._intervalQueued);
@@ -160,6 +182,8 @@ BaaSServer.prototype._handler = function(socket) {
 
   const log = this._logger;
 
+  this._sockets.push(socket);
+
   socket.on('error', (err) => {
     this._metrics.increment('connection.error');
     log.info(_.extend(sockets_details, {
@@ -169,6 +193,7 @@ BaaSServer.prototype._handler = function(socket) {
       }
     }), 'connection error');
   }).on('close', () => {
+    _.pull(this._sockets, socket);
     this._metrics.increment('connection.closed');
     log.info(sockets_details, 'connection closed');
   });
