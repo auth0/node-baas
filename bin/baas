@@ -7,7 +7,7 @@ const yaml       = require('js-yaml');
 const _          = require('lodash');
 const BaaSServer = require('../server');
 const bunyan     = require('bunyan');
-var agent        = require('auth0-instrumentation');
+const agent        = require('auth0-instrumentation');
 
 program.version(require('../package').version)
   .option('-p --port [9485]', 'Port to bind [9485].', '9485')
