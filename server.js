@@ -17,6 +17,7 @@ const Request        = require('./messages').Request;
 const Response       = require('./messages').Response;
 const AWS            = require('aws-sdk');
 const enableDestroy  = require('server-destroy');
+const defaultTracer = require('./tracer');
 
 const defaults = {
   port:     9485,
@@ -34,7 +35,8 @@ const defaults = {
     name:        'baas',
     level:       'error',
     serializers: bunyan.stdSerializers
-  })
+  }),
+  tracer: defaultTracer
 };
 
 function fork_worker() {
@@ -76,6 +78,7 @@ function BaaSServer (options) {
   this._server = net.createServer(this._handler.bind(this));
   enableDestroy(this._server);
   this._metrics = this._config.metrics;
+  this._tracer = this._config.tracer;
   this._server.on('error', (err) => {
     this.emit('error', err);
   });
@@ -198,9 +201,18 @@ BaaSServer.prototype._handler = function(socket) {
     .pipe(through2.obj((request, encoding, callback) => {
       const operation = request.operation === 0 ? 'compare' : 'hash';
       const start = Date.now();
+      const wireCtx = this._tracer.extract(this._tracer.FORMAT_AUTH0_BINARY, request.trace_context);
+      const span = this._tracer.startSpan(operation, { childOf: wireCtx });
+      span.setTag(this._tracer.Tags.SPAN_KIND, this._tracer.Tags.SPAN_KIND_RPC_SERVER);
+      span.setTag('request.id', request.id);
 
       const done = (worker_id, enqueued) => {
         return (err, response) => {
+          if (err) {
+            span.setTag(this._tracer.Tags.ERROR, true);
+          }
+          span.setTag('enueued', true);
+          span.finish();
           const took = Date.now() - start;
           log.info({
             request:    request.id,

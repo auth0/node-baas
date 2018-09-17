@@ -4,6 +4,7 @@ const randomstring     = require('randomstring');
 const RequestMessage   = require('./messages').Request;
 const ResponseDecoder  = require('./messages/decoders').ResponseDecoder;
 const url              = require('url');
+const defaultTracer = require('./tracer');
 
 const reconnect        = require('reconnect-net');
 const reconnectTls     = require('reconnect-tls');
@@ -43,6 +44,8 @@ function BaaSClient (options, done) {
     options.port = options.port || DEFAULT_PORT;
     options.host = options.host || DEFAULT_HOST;
   }
+
+  options.tracer = options.tracer || defaultTracer;
 
   this._socketLib = lib_map[options.protocol];
 
@@ -150,6 +153,7 @@ BaaSClient.prototype._sendRequest = function (params, callback) {
     return setImmediate(callback, new Error('The socket is closed.'));
   }
 
+
   var request;
   try {
     request = RequestMessage.create(_.extend({
@@ -163,6 +167,13 @@ BaaSClient.prototype._sendRequest = function (params, callback) {
     return callback(err);
   }
 
+  const tracer = this._options.tracer;
+  const operation = params.operation === RequestMessage.Operation.COMPARE ? 'compare' : 'hash';
+  const span = tracer.startSpan(operation);
+  span.setTag(tracer.Tags.SPAN_KIND, tracer.Tags.SPAN_KIND_RPC_CLIENT);
+  span.setTag('request.id', request.id);
+  tracer.inject(span, tracer.FORMAT_AUTH0_BINARY, (context) => request.trace_context = context);
+
   this._requestCount++;
   this._pendingRequests++;
 
@@ -173,9 +184,12 @@ BaaSClient.prototype._sendRequest = function (params, callback) {
     }
 
     if (response.busy) {
+      span.setTag(tracer.Tags.ERROR, true);
+      span.finish();
       return callback(new Error('baas server is busy'));
     }
 
+    span.finish();
     callback(null, response);
   });
 

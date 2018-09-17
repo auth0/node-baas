@@ -39,11 +39,14 @@ agent.init({ name: 'baas' }, {
   AWS_KINESIS_REGION: process.env.AWS_KINESIS_REGION,
   LOG_TO_KINESIS: process.env.LOG_TO_KINESIS || config.logToKinesis,
   LOG_TO_KINESIS_LEVEL: process.env.LOG_LEVEL || config.logLevel,
-  COLLECT_RESOURCE_USAGE: process.env.COLLECT_RESOURCE_USAGE || config.collectResourceUsage
+  COLLECT_RESOURCE_USAGE: process.env.COLLECT_RESOURCE_USAGE || config.collectResourceUsage,
+  TRACE_AGENT_CLIENT: process.env.TRACE_AGENT_CLIENT || config.traceAgentClient,
+  TRACE_AGENT_HOST: process.env.TRACE_AGENT_HOST || config.traceAgentHost
 }, bunyan.stdSerializers);
 
 config.logger = agent.logger;
 config.metrics = agent.metrics;
+config.tracer = agent.tracer;
 var server = new BaaSServer(config);
 
 server.start();

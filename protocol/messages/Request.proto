@@ -12,4 +12,6 @@ message Request {
   required Operation operation = 3;
 
   optional string hash = 4;
+
+  optional bytes trace_context = 15;
 }
