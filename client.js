@@ -171,6 +171,8 @@ BaaSClient.prototype._sendRequest = function (params, callback) {
   const operation = params.operation === RequestMessage.Operation.COMPARE ? 'compare' : 'hash';
   const span = tracer.startSpan(operation);
   span.setTag(tracer.Tags.SPAN_KIND, tracer.Tags.SPAN_KIND_RPC_CLIENT);
+  span.setTag(tracer.Tags.PEER_ADDRESS, this._options.host);
+  span.setTag(tracer.Tags.PEER_PORT, this._options.port);
   span.setTag('request.id', request.id);
   tracer.inject(span, tracer.FORMAT_AUTH0_BINARY, (context) => request.trace_context = context);
 

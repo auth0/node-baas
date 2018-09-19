@@ -205,13 +205,16 @@ BaaSServer.prototype._handler = function(socket) {
       const span = this._tracer.startSpan(operation, { childOf: wireCtx });
       span.setTag(this._tracer.Tags.SPAN_KIND, this._tracer.Tags.SPAN_KIND_RPC_SERVER);
       span.setTag('request.id', request.id);
+      span.setTag(this._tracer.Tags.PEER_ADDRESS, sockets_details.remoteAddress);
+      span.setTag(this._tracer.Tags.PEER_PORT, sockets_details.remotePort);
 
       const done = (worker_id, enqueued) => {
         return (err, response) => {
           if (err) {
             span.setTag(this._tracer.Tags.ERROR, true);
           }
-          span.setTag('enueued', true);
+          span.setTag('enqueued', enqueued);
+          span.setTag('worker.id', worker_id);
           span.finish();
           const took = Date.now() - start;
           log.info({
