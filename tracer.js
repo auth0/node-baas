@@ -5,7 +5,7 @@ var emptySpan = {
   setTag: _.noop,
   addTags: _.noop,
   context: _.noop,
-  tracer: () => { return emptyTracer },
+  tracer: () => { return emptyTracer; },
   setOperationName: _.noop
 };
 
