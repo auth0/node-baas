@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
-var program = require('commander');
-var Client = require('../client');
-var _ = require('lodash');
-var read = require('read')
+const program = require('commander');
+const Client = require('../client');
+const _ = require('lodash');
+const read = require('read')
+const agent = require('auth0-instrumentation');
 
 program.version(require('../package').version)
   .option('-p, --port [9485]', 'Port to bind [9485].', '9485')
@@ -13,11 +14,14 @@ program.version(require('../package').version)
   .option('--hash <hash>', 'The hash to compare the password.', false)
   .parse(process.argv);
 
+agent.init({ name: 'baas-cli' }, process.env);
+
 var config = _.pick(program, ['port', 'hostname', 'protocol']);
 
 if (!program.reject) {
   config.rejectUnauthorized = false;
 }
+config.tracer = agent.tracer;
 
 var client = new Client(config);
 
@@ -40,7 +44,7 @@ client.once('ready', function () {
           console.error(err.message);
           return process.exit(1);
         }
-        if (result.success) {
+        if (result) {
           console.log('The password match the hash.');
           return process.exit(0);
         } else {
