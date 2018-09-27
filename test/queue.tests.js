@@ -19,7 +19,7 @@ describe('serving queueing', function () {
 
       server.start(function (err, address) {
         if (err) { return done(err); }
-        client = new BaaSClient(_.extend({}, address), done);
+        client = new BaaSClient(_.extend({requestTimeout: 500}, address), done);
       });
     });
   });
@@ -39,6 +39,16 @@ describe('serving queueing', function () {
     client.hash(password, function (err, hash) {
       if (err) { return done(err); }
       assert.ok(bcrypt.compareSync(password, hash));
+      done();
+    });
+  });
+
+  it('should timeout', function (done) {
+    const password = 'foobar';
+    server._config.workerTimeout = 10;
+    client.hash(password, _.noop);
+    client.hash(password, function (err) {
+      assert.equal(err.reason, 'timeout');
       done();
     });
   });

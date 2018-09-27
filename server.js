@@ -24,6 +24,7 @@ const defaults = {
   hostname: '0.0.0.0',
   logLevel: 'info',
   socketTimeout: 2000,
+  workerTimeout: 1000,
   metrics: {
     gauge:     _.noop,
     increment: _.noop,
@@ -104,7 +105,8 @@ function BaaSServer (options) {
   this._workers.forEach(worker => {
     worker.on('drain', () => {
       const pending = this._queue.shift();
-      if (!pending) {
+      const timedOut = pending && ((Date.now() - pending.start) > this._config.workerTimeout);
+      if (!pending || timedOut) {
         this._workers.push(worker);
       } else {
         worker.sendRequest(pending.request, pending.done(worker.id, true));
@@ -252,7 +254,7 @@ BaaSServer.prototype._handler = function(socket) {
       if (!this._workers.length){
         this._intervalQueued++;
         // no available workers, queue and wait
-        this._queue.push({request, done});
+        this._queue.push({request, done, start});
         return callback();
       }
 
