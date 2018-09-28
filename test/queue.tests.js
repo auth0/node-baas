@@ -5,7 +5,7 @@ const freeport = require('freeport');
 const assert = require('chai').assert;
 const _ = require('lodash');
 const BaaSClient = require('../client');
-const magic = require('magic');
+const magic = require('auth0-magic');
 
 
 describe('serving queueing', function () {

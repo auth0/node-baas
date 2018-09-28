@@ -2,7 +2,7 @@ const BaaSServer = require('..').Server;
 const BaaSClient = require('../client');
 
 const assert = require('chai').assert;
-const magic = require('magic');
+const magic = require('auth0-magic');
 const ssl_tunnel = require('./util/ssl_tunnel');
 const freeport = require('freeport');
 

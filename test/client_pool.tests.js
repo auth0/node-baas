@@ -3,7 +3,7 @@ const BaaSServer = require('..').Server;
 const BaaSPool = require('../pool');
 const freeport = require('freeport');
 const assert = require('chai').assert;
-const magic = require('magic');
+const magic = require('auth0-magic');
 
 describe('pool client', function () {
   let client;

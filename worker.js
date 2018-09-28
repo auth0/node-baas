@@ -1,4 +1,4 @@
-const magic = require('magic');
+const magic = require('auth0-magic');
 
 const execute = module.exports = function (request, callback) {
   const request_id = request.id;
