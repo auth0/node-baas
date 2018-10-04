@@ -103,11 +103,22 @@ BaaSClient.prototype.connect = function (done) {
   client.once('ready', done || _.noop);
 };
 
+/**
+ * Signatures
+ * 
+ * hash('password', (err, hash))
+ * hash('password', 'salt', (err, hash))
+ * hash('password', { span: span }, (err, hash))
+ */
 BaaSClient.prototype.hash = function (password, salt, callback) {
+  var options = {};
+
   //Salt is keep for api-level compatibility with node-bcrypt
   //but is enforced in the backend.
   if (typeof salt === 'function') {
     callback = salt;
+  } else if (typeof salt === 'object') {
+    options = salt;
   }
 
   if (!password) {
@@ -117,6 +128,7 @@ BaaSClient.prototype.hash = function (password, salt, callback) {
   const request = {
     'password':  password,
     'operation': RequestMessage.Operation.HASH,
+    'span': options.span
   };
 
   this._sendRequestSafe(request, (err, response) => {
@@ -124,7 +136,20 @@ BaaSClient.prototype.hash = function (password, salt, callback) {
   });
 };
 
-BaaSClient.prototype.compare = function (password, hash, callback) {
+/**
+ * Signatures
+ * 
+ * compare('password', 'hash', (err, hash))
+ * compare('password', 'hash', { span: span }, (err, hash))
+ */
+BaaSClient.prototype.compare = function (password, hash, options, callback) {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  }
+
+  options = options || {};
+
   if (!password) {
     return setImmediate(callback, new Error('password is required'));
   }
@@ -137,6 +162,7 @@ BaaSClient.prototype.compare = function (password, hash, callback) {
     'password':  password,
     'hash':      hash,
     'operation': RequestMessage.Operation.COMPARE,
+    'span': options.span
   };
 
   this._sendRequestSafe(request, (err, response) => {
@@ -169,7 +195,8 @@ BaaSClient.prototype._sendRequest = function (params, callback) {
 
   const tracer = this._options.tracer;
   const operation = params.operation === RequestMessage.Operation.COMPARE ? 'compare' : 'hash';
-  const span = tracer.startSpan(operation);
+  const spanOptions = params.span ? { childOf: params.span } : undefined;
+  const span = tracer.startSpan(operation, spanOptions);
   span.setTag(tracer.Tags.SPAN_KIND, tracer.Tags.SPAN_KIND_RPC_CLIENT);
   span.setTag(tracer.Tags.PEER_ADDRESS, this._options.host);
   span.setTag(tracer.Tags.PEER_PORT, this._options.port);

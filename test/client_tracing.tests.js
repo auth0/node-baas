@@ -3,8 +3,9 @@ const BaaSPool = require('../pool');
 const freeport = require('freeport');
 const assert = require('chai').assert;
 const _ = require('lodash');
+const defaultTracer = require('../tracer');
 
-describe('client (wrong signature)', function () {
+describe('client (tracing)', function () {
   var server, client;
 
   before(function (done) {
@@ -25,24 +26,24 @@ describe('client (wrong signature)', function () {
     server.stop(done);
   });
 
-  it('should error when compare signature is broken', function (done) {
+  it('should allow span in hash operation', function (done) {
     var password = 'foobar';
-    client.hash(password, function (err, hash) {
+    client.hash(password, { span: defaultTracer.startSpan() }, function (err, hash) {
       if (err) return done(err);
-      client.compare({'foo': 'bar'}, hash, function (err, result) {
-        assert.ok(err);
-        assert.notOk(result);
-        done();
-      });
+      assert.ok(hash);
+      done();
     });
   });
 
-  it('should error when hash signature is broken', function (done) {
+  it('should allow span in compare operation', function (done) {
     var password = 'foobar';
-    client.hash({ 'password': password }, function (err, hash) {
-      assert.ok(err);
-      assert.notOk(hash);
-      done();
+    client.hash(password, 'salt', function (err, hash) {
+      if (err) return done(err);
+      client.compare(password, hash, { span: defaultTracer.startSpan() }, function (err, result) {
+        if (err) return done(err);
+        assert.ok(result);
+        done();
+      });
     });
   });
 
