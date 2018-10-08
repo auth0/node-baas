@@ -2,7 +2,7 @@ const BaaSServer = require('..').Server;
 const BaaSClient = require('../client');
 
 const assert = require('chai').assert;
-const bcrypt = require('bcrypt');
+const magic = require('auth0-magic');
 const ssl_tunnel = require('./util/ssl_tunnel');
 const freeport = require('freeport');
 
@@ -40,14 +40,17 @@ describe('baas server (ssl)', function () {
     var password = 'foobar';
     client.hash(password, function (err, hash) {
       if (err) return done(err);
-      assert.ok(bcrypt.compareSync(password, hash));
-      done();
+      magic.alt.verify.bcrypt(password, hash, function(err) {
+        assert.ok(!err);
+        done();
+      });
     });
   });
 
   it('should be able to compare a password and return ok', function (done) {
     var password = 'foobar';
-    var hash = bcrypt.hashSync(password, 10);
+    // hash from bcrypt v3.0.0. hardcoded to test versions compatib`ility
+    var hash = '$2b$10$XOaNyQ/nHyoxJQ2U9D/bgutK3qRFqS2DCVqSEU/Q1zAP5fbW7WiGW'
     client.compare(password, hash, function (err, success) {
       if (err) return done(err);
       assert.ok(success);
