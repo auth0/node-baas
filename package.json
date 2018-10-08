@@ -22,7 +22,7 @@
   "dependencies": {
     "async": "^2.6.1",
     "auth0-instrumentation": "github:auth0/auth0-instrumentation#v2.18.0",
-    "auth0-magic": "^1.0.3",
+    "auth0-magic": "1.0.3",
     "aws-sdk": "^2.282.1",
     "bunyan": "^1.8.12",
     "commander": "^2.16.0",
