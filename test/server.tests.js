@@ -46,12 +46,12 @@ describe('baas server', function () {
 
   it('should be able to compare a password and return ok', function (done) {
     var password = 'foobar';
-    magic.alt.password.bcrypt(password, function(err, output) {
-      client.compare(password, output.hash, function (err, success) {
-        if (err) return done(err);
-        assert.ok(success);
-        done();
-      });
+    // hash from bcrypt v3.0.0. hardcoded to test versions compatib`ility
+    var hash = '$2b$10$XOaNyQ/nHyoxJQ2U9D/bgutK3qRFqS2DCVqSEU/Q1zAP5fbW7WiGW'
+    client.compare(password, hash, function (err, success) {
+      if (err) return done(err);
+      assert.ok(success);
+      done();
     });
   });
 
