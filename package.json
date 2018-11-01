@@ -1,6 +1,6 @@
 {
   "name": "baas",
-  "version": "5.17.0",
+  "version": "5.17.1",
   "description": "Bcrypt as a service",
   "main": "index.js",
   "repository": {
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "async": "^2.6.1",
-    "auth0-instrumentation": "github:auth0/auth0-instrumentation#v2.18.0",
+    "auth0-instrumentation": "github:auth0/auth0-instrumentation#v2.19.1",
     "aws-sdk": "^2.282.1",
     "bcrypt": "^3.0.0",
     "bunyan": "^1.8.12",
