@@ -26,11 +26,21 @@ BaaSPool.prototype._getClient = function (callback) {
   self._clients
     .filter(c => c._requestCount >= self._options.maxRequestsPerConnection || (c.stream && !c.stream.writable))
     .forEach(c => {
+      // Trigger a different event based on why we kill the client
+      self.emit(c.stream && !c.stream.writable ? 'stream_not_writable' : 'limit_requests_per_connections_reached', { 
+        request_count: c._requestCount, 
+        max_request_count: self._options.maxRequestsPerConnection  
+      });          
       self._killClient(c);
     });
 
   if (self._openClients < self._options.maxConnections) {
     self._openClients++;
+    self.emit('opened_new_client', { 
+      clients: self._openClients, 
+      max_conncetions: self._options.maxConnections
+    });    
+    
     const newClient = new BaaSClient(this._connectionOptions, function () {
       self._clients.push(newClient);
       var pending = self._pendingRequests;
@@ -55,6 +65,7 @@ BaaSPool.prototype._getClient = function (callback) {
 
   if (!client) {
     self._pendingRequests.push(callback);
+    self.emit('request_queued', { pending_requests: self._pendingRequests.length });        
     return;
   }
 
